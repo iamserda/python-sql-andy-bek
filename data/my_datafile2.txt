@@ -1,0 +1,5 @@
+id: 1, first: Karl, last: Jablonski, phone: 917-500-5000, email: kjab@jablonskiresorts.com, 
+id: 2, first: Lesly Junior, last: Jean, phone: 917-500-4000, email: ljjr@theleslyans.com, 
+id: 3, first: Jean Mario David, last: Percy, phone: 917-400-4400, email: jmdpercy@thepercycompany.com, 
+id: 4, first: Marckly, last: Mathurin, phone: 917-200-2000, email: marckly@mathurinent.com, 
+id: 5, first: Serda, last: Simus, phone: 917-524-5245, email: rogue_swe@rogueones.com, 
