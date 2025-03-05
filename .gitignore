@@ -1,6 +1,6 @@
 .vscode
 .env
 *.db
-env/*
+venv/*
 *.pyc
 *.DS_Store
