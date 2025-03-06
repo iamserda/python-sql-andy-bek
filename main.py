@@ -19,7 +19,6 @@ try:
     )
 except sqlite3.OperationalError as err:
     print("Table already exists. Will continue...")
-    pass
 
 # my_cursor.executemany("""INSERT INTO contacts (first, last, email, phone) VALUES(:first, :last, :email,:phone)""", old_contacts)
 # db_connector.commit()
@@ -35,6 +34,8 @@ def get_contact_by_id(id:int):
     # for item in local_cursor:
     #     print(item)
     local_cursor.close()
+
+
 # # TESTING
 # get_contact_by_id(100)
 # get_contact_by_id(10)
@@ -44,7 +45,7 @@ def get_contact_by_id(id:int):
 # def change_contact_by_id(id, new_data):
 #     pass
 
-# # CREATE 
+# # CREATE
 # def create_new_contact():
 #     pass
 
@@ -55,7 +56,7 @@ def get_contact_by_id(id:int):
 #     local_cursor.execute(statement, {"id": id})
 #     db_connector.commit()
 #     local_cursor.close()
-# # TESTING 
+# # TESTING
 # delete_contact_by_id(1)
 # delete_contact_by_id(2)
 
@@ -65,3 +66,6 @@ def get_contact_by_id(id:int):
 #     for row in statement_generator:
 #         wf.write(row + "\n")
 
+if __name__ == "__main__":
+    for i in range(1, 10):
+        get_contact_by_id(i)
