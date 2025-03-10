@@ -22,27 +22,41 @@ try:
             email TEXT);
     """)
 except sqlite3.OperationalError as err:
+    print("Table already exists. Will continue...")
     pass
 
-# my_cursor.execute(
-#     """
-#     INSERT INTO contacts (first, last, phone, email)
-#     VALUES ('Karl', 'Jablonski', '917-500-5000', 'kjab@jablonskiresorts.com'), 
-#     ('Lesly Junior', 'Jean', '917-500-4000', 'ljjr@theleslyans.com'),
-#     ('Jean Mario David', 'Percy', '917-400-4400', 'jmdpercy@thepercycompany.com'),
-#     ('Marckly', 'Mathurin', '917-200-2000', 'marckly@mathurinent.com'),
-#     ('Serda', 'Simus', '917-524-5245', 'rogue_swe@rogueones.com');
-#     """)
-# my_cursor.execute("""DELETE FROM contacts;""")
-# my_connection.commit()
+my_cursor.execute(
+    """
+    INSERT INTO contacts (first, last, phone, email)
+    VALUES ('Karl', 'Jablonski', '917-500-5000', 'kjab@jablonskiresorts.com'),
+    ('Lesly Junior', 'Jean', '917-500-4000', 'ljjr@theleslyans.com'),
+    ('Jean Mario David', 'Percy', '917-400-4400', 'jmdpercy@thepercycompany.com'),
+    ('Marckly', 'Mathurin', '917-200-2000', 'marckly@mathurinent.com'),
+    ('Serda', 'Simus', '917-524-5245', 'rogue_swe@rogueones.com');
+    """
+)
+my_cursor.execute("""DELETE FROM contacts;""")
+my_connection.commit()
 
-# using fetchall()
-# res = my_cursor.execute("""SELECT first, last, email, phone FROM contacts LIMIT 100;""").fetchall()
+# using fetchone(), fetchmany(), fetchall()
+# # res = my_cursor.execute(
+#     """SELECT first, last, email, phone FROM contacts LIMIT 100;"""
+# ).fetchone()
+
+# res = my_cursor.execute(
+#     """SELECT first, last, email, phone FROM contacts LIMIT 100;"""
+# ).fetchmany(5)
 
 
-# USING fetchone() WHICH RETURNS A PYTHON ITER() OBJECT
-# returns  contacting data relate to a single row
-# returns the first item on the table
+# res = my_cursor.execute(
+#     """SELECT first, last, email, phone FROM contacts LIMIT 100;"""
+# ).fetchall()
+
+
+# USING fetchone(), fetchmany(int) or fetchall() will RETURN A PYTHON ITERATOR ITER() OBJECT
+# fetchone allows us to get one row at a time. Great for memory management, if we do not need all the data at once.
+# fetchmany(int), allows to retrieve a specific number of items starting from the beginning. ex: fetchmany(5) will return the first five rows.
+# fetchall() will returns the first item on the table
 
 # my_cursor.execute("""SELECT first,last,phone,email FROM contacts LIMIT 10;""")
 
@@ -101,7 +115,7 @@ except sqlite3.OperationalError as err:
 #         break
 
 
-# # WAY 1 converts data into dictionaries, 
+# # WAY 1 converts data into dictionaries,
 # # but requires knowledge of data's structure, may yield errors.
 # with open(r"./data/datafile1.txt", mode="w+") as wf:
 #     my_iter = my_cursor.execute("SELECT * FROM contacts")
@@ -113,7 +127,6 @@ except sqlite3.OperationalError as err:
 #         for key, value in data.items():
 #             a_record += f"{key}: {value}, "
 #         print(a_record, file=wf, sep="\n")
-
 
 
 # # WAY 2: Use Zip which comes with built-in error-handling,
@@ -163,46 +176,53 @@ except sqlite3.OperationalError as err:
 #     # user_input_to_sanitize = tuple( user_input.values())
 #     # my_cursor.execute("INSERT INTO contacts (first, last, email, phone) VALUES(?,?,?,?)", user_input_to_sanitize)
 #     # my_connection.commit()
-    
+
 #     # USING Key-Value Pairs:
 #     user_input_to_sanitize = tuple( user_input.values())
 #     my_cursor.execute("INSERT INTO contacts (first, last, email, phone) VALUES(:first,:last,:email,:phone)", user_input)
 #     my_connection.commit()
 
 # USING .executemany method in SQLite3
-# executemany works when we want to insert more than one value, 
+# executemany works when we want to insert more than one value,
 # it executes the given statement multiple times for as many values as needed.
 
 
 ioc(my_connection)
 
 
+class HomeRequestHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write("Home Page")
 
 
-# class HomeRequestHandler(tornado.web.RequestHandler):
-#     def get(self):
-#         self.write("Home Page")
-        
-# class ContactsRequestHandler(tornado.web.RequestHandler):
-#     def get(self):
-#         my_cursor.execute("SELECT first, last, email, phone FROM contacts")
-#         my_connection.commit()
-#         my_cursor.row_factory = lambda cursor, row: dict(zip(["first", "last", "email", "phone"], row))
-#         self.write(json.dumps(my_cursor.fetchall()))
+class ContactsRequestHandler(tornado.web.RequestHandler):
+    def get(self):
+        my_cursor.execute("SELECT first, last, email, phone FROM contacts")
+        my_cursor.row_factory = lambda cursor, row: dict(
+            zip(["first", "last", "email", "phone"], row)
+        )
+        self.write(json.dumps(my_cursor.fetchall()))
 
-# class ContactRequestHandler(tornado.web.RequestHandler):
-#     def get(self, user_id=None):
-#         my_cursor.execute("SELECT first, last, email, phone FROM contacts WHERE id=?", user_id)
-#         my_connection.commit()
-#         self.write(json.dumps(*my_cursor.fetchall()))
 
-# if __name__ == "__main__":
-#     app = tornado.web.Application([
-#         (r"/", HomeRequestHandler),
-#         (r"/contact/([0-9]+)", ContactRequestHandler),
-#         (r"/contacts", ContactsRequestHandler)])
+class ContactRequestHandler(tornado.web.RequestHandler):
+    def get(self, user_id=None):
+        my_cursor.execute(
+            "SELECT first, last, email, phone FROM contacts WHERE id=?", user_id
+        )
+        my_connection.commit()
+        self.write(json.dumps(*my_cursor.fetchall()))
 
-#     port = 8882
-#     app.listen(port)
-#     print(f"app is listening on port: {port}")
-#     tornado.ioloop.IOLoop.current().start()
+
+if __name__ == "__main__":
+    app = tornado.web.Application(
+        [
+            (r"/", HomeRequestHandler),
+            (r"/contact/([0-9]+)", ContactRequestHandler),
+            (r"/contacts", ContactsRequestHandler),
+        ]
+    )
+
+    port = 8882
+    app.listen(port)
+    print(f"app is listening on port: {port}")
+    tornado.ioloop.IOLoop.current().start()

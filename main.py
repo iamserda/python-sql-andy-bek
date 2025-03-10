@@ -19,8 +19,11 @@ try:
     )
 except sqlite3.OperationalError as err:
     print("Table already exists. Will continue...")
+    pass
 
-# my_cursor.executemany("""INSERT INTO contacts (first, last, email, phone) VALUES(:first, :last, :email,:phone)""", old_contacts)
+# my_cursor.executemany("""
+# INSERT INTO contacts (first, last, email, phone)
+# VALUES(:first, :last, :email,:phone)""", old_contacts)
 # db_connector.commit()
 
 # READ
